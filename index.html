@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CYBER SNAKE // NEON PROTOCOL</title>
+
+  <!-- Google Fonts: Outfit (display/headings) and Inter (UI/telemetry) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800;900&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- Ambient Cyberpunk Background Layers -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-cyan" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-magenta" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <main class="app-shell">
+    <!-- Top Telemetry HUD (Glassmorphism Panel) -->
+    <header class="hud-panel glass-panel" aria-label="Game Telemetry">
+      <div class="hud-brand">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span class="hud-title">CYBER_SNAKE</span>
+      </div>
+
+      <div class="hud-metrics">
+        <div class="metric-box">
+          <span class="metric-label">SCORE</span>
+          <span id="hud-score" class="metric-value neon-cyan">0</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">LEVEL</span>
+          <span id="hud-level" class="metric-value neon-magenta">1</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">SPEED</span>
+          <span id="hud-speed" class="metric-value neon-lime">TIER 1</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">HIGH</span>
+          <span id="hud-high" class="metric-value">0</span>
+        </div>
+      </div>
+
+      <div class="hud-actions">
+        <button id="btn-pause" class="icon-btn" type="button" title="Pause / Resume (Space)"
+          aria-label="Pause or Resume" disabled>
+          PAUSE
+        </button>
+        <button id="btn-sound" class="icon-btn active" type="button" title="Toggle Synth Audio"
+          aria-label="Toggle Sound">
+          SFX: ON
+        </button>
+      </div>
+    </header>
+
+    <!-- Game Board Stage -->
+    <section class="canvas-stage glass-panel" aria-label="Cyber Snake Arena">
+      <canvas id="game-canvas" width="560" height="560" aria-label="Cyber Snake HTML5 Canvas Game Board"></canvas>
+
+      <!-- Speed Surge Alert Toast (triggers every 10 levels) -->
+      <div id="speed-alert" class="speed-alert hidden" role="status" aria-live="polite">
+        SPEED SURGE // TIER 2
+      </div>
+
+      <!-- 1. START SCREEN -->
+      <div id="start-screen" class="overlay-screen glass-panel active" role="dialog" aria-labelledby="start-title">
+        <p class="eyebrow">NEURAL GRID PROTOCOL // v2.0</p>
+        <h1 id="start-title" class="glitch title-xl" data-text="CYBER SNAKE">CYBER SNAKE</h1>
+        <p class="subtitle">
+          Consume data nodes to expand your payload. Velocity escalates every 10 levels.
+        </p>
+
+        <div class="input-group">
+          <label for="player-name">RUNNER CALLSIGN</label>
+          <input id="player-name" type="text" maxlength="12" value="NETRUNNER" placeholder="ENTER CALLSIGN"
+            autocomplete="off" spellcheck="false" />
+        </div>
+
+        <div class="btn-stack">
+          <button id="btn-initialize" class="neon-btn primary" type="button">
+            INITIALIZE
+          </button>
+          <button id="btn-open-leaderboard-start" class="neon-btn secondary" type="button">
+            LEADERBOARD
+          </button>
+        </div>
+
+        <p class="controls-hint">
+          <span>WASD / ARROWS</span> Navigate &nbsp;•&nbsp; <span>SPACE</span> Pause
+        </p>
+      </div>
+
+      <!-- 2. PAUSE SCREEN -->
+      <div id="pause-screen" class="overlay-screen glass-panel" role="dialog" aria-labelledby="pause-title">
+        <p class="eyebrow">LINK SUSPENDED</p>
+        <h2 id="pause-title" class="glitch title-lg" data-text="SYSTEM PAUSED">SYSTEM PAUSED</h2>
+        <div class="btn-stack">
+          <button id="btn-resume" class="neon-btn primary" type="button">
+            RESUME LINK
+          </button>
+          <button id="btn-quit-to-menu" class="neon-btn secondary" type="button">
+            ABORT RUN
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. GAME OVER SCREEN -->
+      <div id="gameover-screen" class="overlay-screen glass-panel" role="dialog" aria-labelledby="gameover-title">
+        <p class="eyebrow danger-text">CONNECTION TERMINATED</p>
+        <h2 id="gameover-title" class="glitch glitch-danger title-lg" data-text="GAME OVER">GAME OVER</h2>
+
+        <div class="final-stats">
+          <div class="stat-card">
+            <span class="stat-label">FINAL SCORE</span>
+            <span id="final-score" class="stat-value neon-cyan">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">LEVEL REACHED</span>
+            <span id="final-level" class="stat-value neon-magenta">1</span>
+          </div>
+        </div>
+
+        <p id="record-status" class="record-badge hidden"></p>
+
+        <div class="btn-stack">
+          <button id="btn-restart" class="neon-btn primary" type="button">
+            REINITIALIZE
+          </button>
+          <button id="btn-open-leaderboard-over" class="neon-btn secondary" type="button">
+            LEADERBOARD
+          </button>
+          <button id="btn-back-start" class="neon-btn ghost" type="button">
+            MAIN TERMINAL
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. LEADERBOARD SCREEN -->
+      <div id="leaderboard-screen" class="overlay-screen glass-panel" role="dialog" aria-labelledby="leaderboard-title">
+        <p class="eyebrow">LOCAL STORAGE ARCHIVE</p>
+        <h2 id="leaderboard-title" class="glitch title-lg" data-text="TOP 5 RUNNERS">TOP 5 RUNNERS</h2>
+
+        <ol id="leaderboard-list" class="leaderboard-list" aria-label="Top 5 Leaderboard Scores">
+          <!-- Populated dynamically via script.js -->
+        </ol>
+
+        <div class="btn-row">
+          <button id="btn-close-leaderboard" class="neon-btn primary" type="button">
+            RETURN
+          </button>
+          <button id="btn-clear-leaderboard" class="neon-btn danger-ghost" type="button">
+            PURGE DATA
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Touch / Mobile Controls -->
+    <nav class="touch-controls" aria-label="Touch Directional Pad">
+      <button class="dpad-btn dpad-up" data-dir="UP" type="button" aria-label="Move Up">▲</button>
+      <div class="dpad-middle">
+        <button class="dpad-btn dpad-left" data-dir="LEFT" type="button" aria-label="Move Left">◀</button>
+        <button class="dpad-btn dpad-down" data-dir="DOWN" type="button" aria-label="Move Down">▼</button>
+        <button class="dpad-btn dpad-right" data-dir="RIGHT" type="button" aria-label="Move Right">▶</button>
+      </div>
+    </nav>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
